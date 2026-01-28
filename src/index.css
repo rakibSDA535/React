@@ -1,0 +1,19 @@
+@import "tailwindcss";
+/* User button */
+.cl-avatarBox {
+  width: 2rem;
+  height: 2rem;
+}
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-fadeInLeft {
+  animation: fadeInLeft 1s ease-out;
+}
