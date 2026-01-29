@@ -8,6 +8,8 @@ import Cart from "./pages/Cart";
 import Navber from "./components/Navber";
 import axios from "axios";
 import Footer from "./components/Footer";
+import SingleProduct from "./pages/SingleProduct";
+//import { useUser } from "@clerk/clerk-react";
 
 interface LocationAddress {
   county?: string;
@@ -61,7 +63,8 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
-        {/* <Route path="/category/:type" element={<Products />} /> */}
+        <Route path="/category/:type" element={<Products />} />
+        <Route path="/products/:id" element={<SingleProduct />}></Route>
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/cart" element={<Cart />} />
