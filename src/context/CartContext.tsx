@@ -1,89 +1,61 @@
-// import { createContext, useContext, useState } from "react";
-// import { toast } from "react-toastify";
+import { createContext, useContext, useState } from "react";
+import { toast } from "react-toastify";
 
-// /* ================= TYPES ================= */
-// interface CartItem {
-//   id: number;
-//   title: string;
-//   price: number;
-//   thumbnail: string;
-//   quantity: number;
-// }
+export const CartContext = createContext(null);
 
-// interface CartContextType {
-//   cartItem: CartItem[];
-//   addToCart: (product: Omit<CartItem, "quantity">) => void;
-//   updateQuantity: (productId: number, action: "increase" | "decrease") => void;
-//   deleteItem: (productId: number) => void;
-// }
+export const CartProvider = ({ children }) => {
+  const [cartItem, setCartItem] = useState([]);
 
-// /* ================= CONTEXT ================= */
-// export const CartContext = createContext<CartContextType | null>(null);
+  const addToCart = (product) => {
+    // setCartItem([...cartItem, item])
+    const itemInCart = cartItem.find((item) => item.id === product.id);
+    if (itemInCart) {
+      // Increase quantity if already in cart
+      const updatedCart = cartItem.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item,
+      );
+      toast.warn("Product is already in the cart!");
+      setCartItem(updatedCart);
+    } else {
+      // Add new item with quantity 1
+      setCartItem([...cartItem, { ...product, quantity: 1 }]);
+      toast.success("Product is added to cart!");
+    }
+    console.log(cartItem);
+  };
 
-// /* ================= PROVIDER ================= */
-// export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-//   const [cartItem, setCartItem] = useState<CartItem[]>([]);
+  const updateQuantity = (cartItem, productId, action) => {
+    setCartItem(
+      cartItem
+        .map((item) => {
+          if (item.id === productId) {
+            let newUnit = item.quantity;
+            if (action === "increase") {
+              newUnit = newUnit + 1;
+            } else if (action === "decrease") {
+              newUnit = newUnit - 1;
+            }
+            return newUnit > 0 ? { ...item, quantity: newUnit } : null;
+          }
+          return item;
+        })
+        .filter((item) => item != null), // remove items with quantity 0
+    );
+  };
 
-//   /* ===== Add to cart ===== */
-//   const addToCart = (product: Omit<CartItem, "quantity">) => {
-//     const itemInCart = cartItem.find((item) => item.id === product.id);
+  const deleteItem = (productId) => {
+    setCartItem(cartItem.filter((item) => item.id !== productId));
+  };
 
-//     if (itemInCart) {
-//       setCartItem((prev) =>
-//         prev.map((item) =>
-//           item.id === product.id
-//             ? { ...item, quantity: item.quantity + 1 }
-//             : item,
-//         ),
-//       );
-//       toast.warn("Product quantity increased!");
-//     } else {
-//       setCartItem((prev) => [...prev, { ...product, quantity: 1 }]);
-//       toast.success("Product added to cart!");
-//     }
-//   };
+  return (
+    <CartContext.Provider
+      value={{ cartItem, setCartItem, addToCart, updateQuantity, deleteItem }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+};
 
-//   /* ===== Update quantity ===== */
-//   const updateQuantity = (
-//     productId: number,
-//     action: "increase" | "decrease",
-//   ) => {
-//     setCartItem(
-//       (prev) =>
-//         prev
-//           .map((item) => {
-//             if (item.id === productId) {
-//               const newQty =
-//                 action === "increase" ? item.quantity + 1 : item.quantity - 1;
-
-//               return newQty > 0 ? { ...item, quantity: newQty } : null;
-//             }
-//             return item;
-//           })
-//           .filter(Boolean) as CartItem[],
-//     );
-//   };
-
-//   /* ===== Delete item ===== */
-//   const deleteItem = (productId: number) => {
-//     setCartItem((prev) => prev.filter((item) => item.id !== productId));
-//     toast.info("Item removed from cart");
-//   };
-
-//   return (
-//     <CartContext.Provider
-//       value={{ cartItem, addToCart, updateQuantity, deleteItem }}
-//     >
-//       {children}
-//     </CartContext.Provider>
-//   );
-// };
-
-// /* ================= HOOK ================= */
-// export const useCart = () => {
-//   const context = useContext(CartContext);
-//   if (!context) {
-//     throw new Error("useCart must be used within CartProvider");
-//   }
-//   return context;
-// };
+export const useCart = () => useContext(CartContext);
